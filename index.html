@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>POKéDEX v0.4</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="pokedex" aria-label="Pokedex noventera">
+
+      <!-- PANEL IZQUIERDO: VIEWER -->
+      <div class="left">
+        <header class="topbar">
+          <div class="brand">
+            <div class="brand-title">POKéDEX</div>
+            <div class="brand-sub">v0.4 • monochrome</div>
+          </div>
+
+          <div class="status-lights" aria-label="Indicadores de estado">
+            <span class="led" id="led-ready" title="IDLE"></span>
+            <span class="led" id="led-load" title="SCANNING"></span>
+            <span class="led" id="led-err" title="ERROR"></span>
+          </div>
+        </header>
+
+        <div class="bezel">
+          <div class="screen" role="region" aria-label="Pantalla">
+            <div class="scanlines" aria-hidden="true"></div>
+
+            <div class="screen-grid">
+              <!-- HEADER: No. | SPEAKER BARS | NAME -->
+              <div class="screen-header">
+                <div class="idline">
+                  <span class="mono">No.</span>
+                  <span id="pk-id" class="mono">025</span>
+                </div>
+
+                <!-- BARRAS REUBICADAS AQUÍ -->
+                <div class="speaker-strip" aria-hidden="true" id="speaker-bars">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+
+                <div id="pk-name" class="title">PIKACHU</div>
+              </div>
+
+              <div class="screen-body">
+                <div class="spritebox">
+                  <img id="pk-sprite"
+                       alt="Sprite pixel"
+                       src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" />
+                </div>
+
+                <div class="infobox">
+                  <div class="kv">
+                    <div class="row">
+                      <span class="label">TYPE</span>
+                      <span id="pk-types" class="value">ELECTRIC</span>
+                    </div>
+                    <div class="row">
+                      <span class="label">ABIL</span>
+                      <span id="pk-abil" class="value">STATIC</span>
+                    </div>
+                    <div class="row">
+                      <span class="label">HT</span>
+                      <span id="pk-ht" class="value">0.4m</span>
+                    </div>
+                    <div class="row">
+                      <span class="label">WT</span>
+                      <span id="pk-wt" class="value">6.0kg</span>
+                    </div>
+                  </div>
+
+                  <div class="viewbox" id="viewbox">
+                    <!-- INFO VIEW -->
+                    <div class="view view-info" id="view-info">
+                      <div class="info-line"><span class="tag">SPECIES</span> <span id="pk-species">MOUSE</span></div>
+                      <div class="info-line"><span class="tag">HAB</span> <span id="pk-abil2">STATIC</span></div>
+                      <div class="info-line"><span class="tag">EXP</span> <span id="pk-exp">112</span></div>
+                      <div class="info-line"><span class="tag">DEX</span> <span id="pk-dex">GEN 1</span></div>
+                    </div>
+
+                    <!-- STATS VIEW -->
+                    <div class="view view-stats" id="view-stats" aria-hidden="true">
+                      <div class="radar-stage">
+                        <canvas id="radar" width="220" height="170"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="screen-footer">
+                <div class="hint mono">A: INFO</div>
+                <div class="hint mono">B: STATS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="controls-v4">
+          <div class="controls-row">
+            <!-- D-PAD (VISUAL CRUZ + BOTONES INVISIBLES) -->
+            <div class="dpad" aria-label="D-pad">
+              <div class="dpad-shape" aria-hidden="true"></div>
+              <div class="dpad-pivot" aria-hidden="true"></div>
+
+              <button class="dpad-hit up"    id="d-up"    type="button" aria-label="Arriba"></button>
+              <button class="dpad-hit left"  id="d-left"  type="button" aria-label="Izquierda"></button>
+              <button class="dpad-hit right" id="d-right" type="button" aria-label="Derecha"></button>
+              <button class="dpad-hit down"  id="d-down"  type="button" aria-label="Abajo"></button>
+            </div>
+
+            <!-- A/B -->
+            <div class="ab">
+              <button class="btn round" id="btn-a" type="button">A</button>
+              <button class="btn round" id="btn-b" type="button">B</button>
+            </div>
+          </div>
+
+          <!-- SELECT centrado abajo -->
+          <div class="controls-row center">
+            <div class="select-stack">
+              <button class="btn select" id="btn-select" type="button" aria-label="Select"></button>
+              <div class="select-label">SELECT</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BISAGRA -->
+      <div class="hinge" aria-hidden="true">
+        <div class="hinge-inner"></div>
+      </div>
+
+      <!-- PANEL DERECHO: BROWSER -->
+      <div class="right">
+        <header class="right-top">
+          <div class="panel-title">DEX BROWSER</div>
+          <div class="panel-sub mono">GEN 1 | DEX 001–151</div>
+        </header>
+
+        <div class="bezel browser-bezel">
+          <div class="browser-screen" role="region" aria-label="Browser monocromo">
+            <div class="scanlines" aria-hidden="true"></div>
+
+            <div class="browser-ui">
+              <div class="browser-row">
+                <div class="lcd">
+                  <span class="lcd-label">SEARCH</span>
+                  <input id="search" class="lcd-input" placeholder="pikachu o 25" autocomplete="off" />
+                </div>
+                <button id="btn-search" class="lcd-btn" type="button">SEARCH</button>
+              </div>
+
+              <div class="browser-row">
+                <div class="typebox" aria-label="Selector de tipo">
+                  <span class="lcd-label">TYPE</span>
+                  <button class="arrow" id="type-prev" type="button" aria-label="Tipo anterior">◄</button>
+                  <div class="type-value" id="type-value">ALL</div>
+                  <button class="arrow" id="type-next" type="button" aria-label="Siguiente tipo">►</button>
+                </div>
+
+                <div class="mini-lcd mono" id="mini-screen">PAGE 01/01</div>
+              </div>
+
+              <ul class="list" id="pk-list" aria-label="Lista de Pokémon"></ul>
+
+              <div class="browser-footer mono">
+                ↑↓ move • ←→ page • SELECT confirm • ENTER search
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
