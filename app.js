@@ -9,10 +9,10 @@ const el = {
   ht: $("#pk-ht"),
   wt: $("#pk-wt"),
 
-  species: $("#pk-species"),
-  abil2: $("#pk-abil2"),
-  exp: $("#pk-exp"),
-  dex: $("#pk-dex"),
+  genus: $("#pk-genus"),
+  habitat: $("#pk-habitat"),
+  catchRate: $("#pk-catch"),
+  happy: $("#pk-happy"),
 
   viewInfo: $("#view-info"),
   viewStats: $("#view-stats"),
@@ -44,6 +44,27 @@ const el = {
 };
 
 const API = "https://pokeapi.co/api/v2";
+
+// ---------- MARQUEE (LCD scroll si overflow) ----------
+function applyMarqueeIfOverflow(node){
+  if (!node) return;
+
+  // reset
+  node.classList.remove("marquee");
+  const inner = node.querySelector(".marquee-inner");
+  if (inner){
+    const base = inner.textContent.split("   •   ")[0];
+    node.textContent = base;
+  }
+
+  requestAnimationFrame(() => {
+    if (node.scrollWidth > node.clientWidth + 2){
+      const txt = node.textContent.trim();
+      node.classList.add("marquee");
+      node.innerHTML = `<span class="marquee-inner">${txt}   •   ${txt}</span>`;
+    }
+  });
+}
 
 // ---------- AUDIO (synth 8/16-bit) ----------
 let audioCtx = null;
@@ -97,26 +118,50 @@ const SFX = {
 
 // ---------- LED + SPEAKER ANIM ----------
 let idleBlinkTimer = null;
+let errorBlinkTimer = null;
 let speakerTimer = null;
 
+function stopIdleBlink(){
+  if (idleBlinkTimer) clearInterval(idleBlinkTimer);
+  idleBlinkTimer = null;
+}
+function stopErrorBlink(){
+  if (errorBlinkTimer) clearInterval(errorBlinkTimer);
+  errorBlinkTimer = null;
+}
+
 function setLED(mode){
-  el.ledReady.classList.toggle("on", mode === "idle");
-  el.ledLoad.classList.toggle("on", mode === "scan");
-  el.ledErr.classList.toggle("on", mode === "err");
+  el.ledReady.classList.remove("on");
+  el.ledLoad.classList.remove("on");
+  el.ledErr.classList.remove("on");
+
+  if (mode === "idle") el.ledReady.classList.add("on");
+  if (mode === "scan") el.ledLoad.classList.add("on");
+  if (mode === "err") el.ledErr.classList.add("on");
 }
 
 function startIdleBlink(){
+  stopErrorBlink();
   stopIdleBlink();
   setLED("idle");
+
   let on = true;
   idleBlinkTimer = setInterval(()=>{
     on = !on;
     el.ledReady.classList.toggle("on", on);
   }, 650);
 }
-function stopIdleBlink(){
-  if (idleBlinkTimer) clearInterval(idleBlinkTimer);
-  idleBlinkTimer = null;
+
+function startErrorBlink(){
+  stopIdleBlink();
+  stopErrorBlink();
+  setLED("err");
+
+  let on = true;
+  errorBlinkTimer = setInterval(()=>{
+    on = !on;
+    el.ledErr.classList.toggle("on", on);
+  }, 650);
 }
 
 function stopSpeakerAnim(){
@@ -135,8 +180,7 @@ function speakerScan(){
   const bars = [...el.speaker.querySelectorAll("i")];
   speakerTimer = setInterval(()=>{
     bars.forEach((b)=> {
-      // límite: nunca más alto que el header strip
-      const h = 6 + Math.floor(Math.random()*9); // 6..14
+      const h = 6 + Math.floor(Math.random()*9);
       b.style.height = h + "px";
       b.style.opacity = 0.65;
     });
@@ -160,26 +204,11 @@ function speakerError(){
 
 async function scanDelay(ms=480){
   stopIdleBlink();
+  stopErrorBlink();
   setLED("scan");
   speakerScan();
   SFX.scan(ms);
   await new Promise(r => setTimeout(r, ms));
-}
-
-// error LED pattern (solo rojo)
-function setErrorState(){
-  setLED("err");
-  speakerError();
-  SFX.error();
-  let n = 0;
-  const t = setInterval(()=>{
-    n++;
-    el.ledErr.classList.toggle("on", n%2===0);
-    if (n >= 10){
-      clearInterval(t);
-      el.ledErr.classList.add("on");
-    }
-  }, 120);
 }
 
 // ---------- VIEW SWITCH ----------
@@ -224,7 +253,7 @@ async function getSpeciesById(id){
 function mapForUI(pokemon, species){
   const types = pokemon.types.map(t => t.type.name.toUpperCase());
   const abilities = pokemon.abilities.map(a => a.ability.name.toUpperCase());
-  const mainAbility = abilities[0] ?? "--";
+  const abilText = abilities.slice(0,2).join(" / ") || "--";
 
   const statMap = new Map(pokemon.stats.map(s => [s.stat.name, s.base_stat]));
   const stats = [
@@ -242,17 +271,21 @@ function mapForUI(pokemon, species){
     "";
 
   const genusEn = (species.genera || []).find(g => g.language?.name === "en")?.genus || "POKéMON";
+  const habitat = species.habitat?.name ? species.habitat.name.toUpperCase() : "--";
+  const catchRate = (typeof species.capture_rate === "number") ? String(species.capture_rate) : "--";
+  const happy = (typeof species.base_happiness === "number") ? String(species.base_happiness) : "--";
 
   return {
     id: pokemon.id,
     name: pokemon.name.toUpperCase(),
     types,
-    ability: mainAbility,
-    abilities,
+    abilText,
     heightM: (pokemon.height/10).toFixed(1) + "m",
     weightKg: (pokemon.weight/10).toFixed(1) + "kg",
-    baseExp: pokemon.base_experience ?? "--",
-    speciesLine: genusEn.toUpperCase(),
+    genus: genusEn.toUpperCase().replace(" POKÉMON","").trim() || genusEn.toUpperCase(),
+    habitat,
+    catchRate,
+    happy,
     sprite,
     stats
   };
@@ -271,20 +304,24 @@ function renderNotFound(){
   el.ht.textContent = "--";
   el.wt.textContent = "--";
 
-  el.species.textContent = "--";
-  el.abil2.textContent = "--";
-  el.exp.textContent = "--";
-  el.dex.textContent = "--";
+  el.genus.textContent = "--";
+  el.habitat.textContent = "--";
+  el.catchRate.textContent = "--";
+  el.happy.textContent = "--";
 
-  // sprite invisible (sin imagen rota)
   el.sprite.src = TRANSPARENT_1PX;
   el.sprite.classList.add("hidden");
 
-  // radar con 0s pero visible
   drawRadar([
     {key:"HP",value:0},{key:"ATK",value:0},{key:"DEF",value:0},
     {key:"SPA",value:0},{key:"SPD",value:0},{key:"SPE",value:0},
   ]);
+
+  applyMarqueeIfOverflow(el.types);
+  applyMarqueeIfOverflow(el.abil);
+  applyMarqueeIfOverflow(el.typeValue);
+  applyMarqueeIfOverflow(el.genus);
+  applyMarqueeIfOverflow(el.habitat);
 }
 
 function renderViewer(ui){
@@ -292,14 +329,14 @@ function renderViewer(ui){
   el.name.textContent = ui.name;
 
   el.types.textContent = ui.types.join(" / ");
-  el.abil.textContent = ui.ability;
+  el.abil.textContent = ui.abilText;
   el.ht.textContent = ui.heightM;
   el.wt.textContent = ui.weightKg;
 
-  el.species.textContent = ui.speciesLine.replace(" POKÉMON","").trim() || ui.speciesLine;
-  el.abil2.textContent = ui.abilities.slice(0,2).join(" / ") || "--";
-  el.exp.textContent = String(ui.baseExp);
-  el.dex.textContent = "GEN 1";
+  el.genus.textContent = ui.genus;
+  el.habitat.textContent = ui.habitat;
+  el.catchRate.textContent = ui.catchRate;
+  el.happy.textContent = ui.happy;
 
   if (ui.sprite){
     el.sprite.src = ui.sprite;
@@ -310,6 +347,11 @@ function renderViewer(ui){
   }
 
   drawRadar(ui.stats);
+
+  applyMarqueeIfOverflow(el.types);
+  applyMarqueeIfOverflow(el.abil);
+  applyMarqueeIfOverflow(el.genus);
+  applyMarqueeIfOverflow(el.habitat);
 }
 
 function drawRadar(stats){
@@ -324,7 +366,7 @@ function drawRadar(stats){
   ctx.clearRect(0,0,cssW,cssH);
 
   const cx = cssW * 0.50;
-  const cy = cssH * 0.52;
+  const cy = cssH * 0.54;
   const R  = Math.min(cssW, cssH) * 0.40;
 
   const labels = stats.map(s => s.key);
@@ -359,14 +401,15 @@ function drawRadar(stats){
     ctx.stroke();
   }
 
-  ctx.font = "12px VT323, monospace";
+  /* Bigger label font */
+  ctx.font = "15px VT323, monospace";
   ctx.fillStyle = ink;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   for (let i=0; i<labels.length; i++){
     const a = (-Math.PI/2) + (i * 2*Math.PI/labels.length);
-    const x = cx + Math.cos(a) * (R + 18);
-    const y = cy + Math.sin(a) * (R + 12);
+    const x = cx + Math.cos(a) * (R + 22);
+    const y = cy + Math.sin(a) * (R + 14);
     ctx.fillText(labels[i], x, y);
   }
 
@@ -439,6 +482,7 @@ function updateMini(){
 }
 function setTypeUI(){
   el.typeValue.textContent = TYPES[typeIndex];
+  applyMarqueeIfOverflow(el.typeValue);
 }
 
 function renderList(){
@@ -494,7 +538,7 @@ function highlightSelection(){
 
 function moveSelection(delta){
   const items = visibleSlice();
-  if (items.length === 0){ setErrorState(); return; }
+  if (items.length === 0){ speakerError(); startErrorBlink(); SFX.error(); return; }
 
   selectedIndex += delta;
   if (selectedIndex < 0) selectedIndex = 0;
@@ -542,11 +586,16 @@ function recalcPageSize(){
 
 async function confirmSelection(){
   const items = visibleSlice();
-  if (items.length === 0){ setErrorState(); return; }
+  if (items.length === 0){
+    renderNotFound();
+    speakerError();
+    startErrorBlink();
+    SFX.error();
+    return;
+  }
 
   const name = items[selectedIndex];
 
-  // scan primero, confirm después (como pediste)
   await scanDelay(480);
 
   try{
@@ -558,23 +607,25 @@ async function confirmSelection(){
     activeName = p.name;
     renderList();
 
-    // éxito después del scan
     SFX.confirm();
-
-    setLED("idle");
     speakerIdle();
     startIdleBlink();
   } catch {
     renderNotFound();
-    setErrorState();
+    speakerError();
+    startErrorBlink();
+    SFX.error();
   }
 }
 
 async function searchAndLoad(query){
   const q = String(query).trim().toLowerCase();
+
   if (!q){
     renderNotFound();
-    setErrorState();
+    speakerError();
+    startErrorBlink();
+    SFX.error();
     return;
   }
 
@@ -603,15 +654,14 @@ async function searchAndLoad(query){
 
     renderList();
 
-    // éxito después del scan
     SFX.confirm();
-
-    setLED("idle");
     speakerIdle();
     startIdleBlink();
   } catch {
     renderNotFound();
-    setErrorState();
+    speakerError();
+    startErrorBlink();
+    SFX.error();
   }
 }
 
@@ -646,6 +696,11 @@ window.addEventListener("keydown", (e) => {
 window.addEventListener("resize", () => {
   recalcPageSize();
   renderList();
+  applyMarqueeIfOverflow(el.typeValue);
+  applyMarqueeIfOverflow(el.types);
+  applyMarqueeIfOverflow(el.abil);
+  applyMarqueeIfOverflow(el.genus);
+  applyMarqueeIfOverflow(el.habitat);
 });
 
 // ---------- INIT ----------

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>POKéDEX v0.4</title>
+  <title>POKéDEX v0.5</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -15,7 +15,7 @@
         <header class="topbar">
           <div class="brand">
             <div class="brand-title">POKéDEX</div>
-            <div class="brand-sub">v0.4 • monochrome</div>
+            <div class="brand-sub mono">v0.5 • monochrome</div>
           </div>
 
           <div class="status-lights" aria-label="Indicadores de estado">
@@ -30,19 +30,14 @@
             <div class="scanlines" aria-hidden="true"></div>
 
             <div class="screen-grid">
-              <!-- HEADER: No. | SPEAKER BARS | NAME -->
+              <!-- HEADER: No. | NAME -->
               <div class="screen-header">
                 <div class="idline">
                   <span class="mono">No.</span>
                   <span id="pk-id" class="mono">025</span>
                 </div>
 
-                <!-- BARRAS REUBICADAS AQUÍ -->
-                <div class="speaker-strip" aria-hidden="true" id="speaker-bars">
-                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-
-                <div id="pk-name" class="title">PIKACHU</div>
+                <div id="pk-name" class="title" title="Nombre Pokémon">PIKACHU</div>
               </div>
 
               <div class="screen-body">
@@ -73,26 +68,32 @@
                   </div>
 
                   <div class="viewbox" id="viewbox">
-                    <!-- INFO VIEW -->
+                    <!-- INFO VIEW (estática) -->
                     <div class="view view-info" id="view-info">
-                      <div class="info-line"><span class="tag">SPECIES</span> <span id="pk-species">MOUSE</span></div>
-                      <div class="info-line"><span class="tag">HAB</span> <span id="pk-abil2">STATIC</span></div>
-                      <div class="info-line"><span class="tag">EXP</span> <span id="pk-exp">112</span></div>
-                      <div class="info-line"><span class="tag">DEX</span> <span id="pk-dex">GEN 1</span></div>
+                      <div class="info-line"><span class="tag">GENUS</span> <span id="pk-genus">MOUSE</span></div>
+                      <div class="info-line"><span class="tag">HABIT</span> <span id="pk-habitat">FOREST</span></div>
+                      <div class="info-line"><span class="tag">CATCH</span> <span id="pk-catch">190</span></div>
+                      <div class="info-line"><span class="tag">HAPPY</span> <span id="pk-happy">70</span></div>
                     </div>
 
                     <!-- STATS VIEW -->
                     <div class="view view-stats" id="view-stats" aria-hidden="true">
                       <div class="radar-stage">
-                        <canvas id="radar" width="220" height="170"></canvas>
+                        <canvas id="radar" width="240" height="180"></canvas>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
+              <!-- FOOTER: A | B con SPEAKER en el centro -->
               <div class="screen-footer">
                 <div class="hint mono">A: INFO</div>
+
+                <div class="speaker-strip" aria-hidden="true" id="speaker-bars">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+
                 <div class="hint mono">B: STATS</div>
               </div>
             </div>
@@ -102,7 +103,7 @@
         <!-- CONTROLES -->
         <div class="controls-v4">
           <div class="controls-row">
-            <!-- D-PAD (VISUAL CRUZ + BOTONES INVISIBLES) -->
+            <!-- D-PAD -->
             <div class="dpad" aria-label="D-pad">
               <div class="dpad-shape" aria-hidden="true"></div>
               <div class="dpad-pivot" aria-hidden="true"></div>
