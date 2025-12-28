@@ -1,30 +1,30 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>POKéDEX v0.6</title>
+  <title>POKéDEX v0.7</title>
+  <link rel="icon" href="img/favicon.ico" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
   <main class="wrap">
     <section class="pokedex" aria-label="Pokedex noventera">
-
       <!-- PANEL IZQUIERDO: VIEWER -->
       <div class="left">
         <header class="topbar">
           <div class="brand">
             <div class="brand-title">POKéDEX</div>
-            <div class="brand-sub mono">v0.6 • monochrome</div>
+            <div class="brand-sub mono">v0.7 • monochrome</div>
           </div>
-
           <div class="status-lights" aria-label="Indicadores de estado">
             <span class="led" id="led-ready" title="IDLE"></span>
             <span class="led" id="led-load" title="SCANNING"></span>
             <span class="led" id="led-err" title="ERROR"></span>
           </div>
         </header>
-
         <div class="bezel">
           <div class="screen" role="region" aria-label="Pantalla">
             <div class="scanlines" aria-hidden="true"></div>
@@ -42,9 +42,8 @@
 
               <div class="screen-body">
                 <div class="spritebox">
-                  <img id="pk-sprite"
-                       alt="Sprite pixel"
-                       src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" />
+                  <img id="pk-sprite" alt="Sprite pixel"
+                    src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" />
                 </div>
 
                 <div class="infobox">
@@ -105,13 +104,54 @@
           <div class="controls-row">
             <!-- D-PAD -->
             <div class="dpad" aria-label="D-pad">
-              <div class="dpad-shape" aria-hidden="true"></div>
+              <svg class="dpad-svg" viewBox="0 0 128 128" aria-hidden="true" focusable="false">
+                <defs>
+                  <linearGradient id="dpadGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--btn-top)" />
+                    <stop offset="55%" stop-color="var(--btn-mid)" />
+                    <stop offset="100%" stop-color="var(--btn-bot)" />
+                  </linearGradient>
+                </defs>
+                <path class="dpad-stroke dpad-stroke--white" d="M50 10 H78
+                            Q82 10 82 14
+                            V46 H114
+                            Q118 46 118 50
+                            V78
+                            Q118 82 114 82
+                            H82 V114
+                            Q82 118 78 118
+                            H50
+                            Q46 118 46 114
+                            V82 H14
+                            Q10 82 10 78
+                            V50
+                            Q10 46 14 46
+                            H46 V14
+                            Q46 10 50 10
+                            Z" />
+                <path class="dpad-plastic" d="M50 10 H78
+                            Q82 10 82 14
+                            V46 H114
+                            Q118 46 118 50
+                            V78
+                            Q118 82 114 82
+                            H82 V114
+                            Q82 118 78 118
+                            H50
+                            Q46 118 46 114
+                            V82 H14
+                            Q10 82 10 78
+                            V50
+                            Q10 46 14 46
+                            H46 V14
+                            Q46 10 50 10
+                            Z" />
+              </svg>
               <div class="dpad-pivot" aria-hidden="true"></div>
-
-              <button class="dpad-hit up"    id="d-up"    type="button" aria-label="Arriba"></button>
-              <button class="dpad-hit left"  id="d-left"  type="button" aria-label="Izquierda"></button>
+              <button class="dpad-hit up" id="d-up" type="button" aria-label="Arriba"></button>
+              <button class="dpad-hit left" id="d-left" type="button" aria-label="Izquierda"></button>
               <button class="dpad-hit right" id="d-right" type="button" aria-label="Derecha"></button>
-              <button class="dpad-hit down"  id="d-down"  type="button" aria-label="Abajo"></button>
+              <button class="dpad-hit down" id="d-down" type="button" aria-label="Abajo"></button>
             </div>
 
             <!-- A/B -->
@@ -182,4 +222,5 @@
 
   <script src="js/app.js"></script>
 </body>
+
 </html>
