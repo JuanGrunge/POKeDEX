@@ -365,8 +365,8 @@ function drawRadar(stats){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0,0,cssW,cssH);
 
-  const cx = cssW * 0.50;
-  const cy = cssH * 0.54;
+  const cx = cssW / 2;
+  const cy = cssH / 2;
   const R  = Math.min(cssW, cssH) * 0.40;
 
   const labels = stats.map(s => s.key);
@@ -401,17 +401,22 @@ function drawRadar(stats){
     ctx.stroke();
   }
 
-  /* Bigger label font */
-  ctx.font = "15px VT323, monospace";
-  ctx.fillStyle = ink;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  for (let i=0; i<labels.length; i++){
-    const a = (-Math.PI/2) + (i * 2*Math.PI/labels.length);
-    const x = cx + Math.cos(a) * (R + 22);
-    const y = cy + Math.sin(a) * (R + 14);
-    ctx.fillText(labels[i], x, y);
-  }
+/* Labels: más discretos y más cerca del polígono (evita tapar stats) */
+ctx.font = "11px VT323, monospace";     // antes 15px
+ctx.fillStyle = ink;
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+
+for (let i=0; i<labels.length; i++){
+  const a = (-Math.PI/2) + (i * 2*Math.PI/labels.length);
+
+  // acercamos los labels al borde del radar
+  const x = cx + Math.cos(a) * (R + 10);  // antes R + 22
+  const y = cy + Math.sin(a) * (R + 6);   // antes R + 14
+
+  ctx.fillText(labels[i], x, y);
+}
+
 
   ctx.beginPath();
   for (let i=0; i<values.length; i++){
