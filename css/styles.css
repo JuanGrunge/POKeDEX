@@ -187,19 +187,39 @@ body{
 
 .screen-body{
   display:grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 12px;
   align-items:stretch;
+  min-width:0;
+}
+.screen-left{
+  display:grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  background: rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.10);
+}
+.screen-right{
+  min-width: 0;
+  background: rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.10);
+  overflow: hidden;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
 }
 
 .spritebox{
-  background: rgba(255,255,255,.18);
-  border-radius: 12px;
-  padding: 10px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
   display:grid;
   place-items:center;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.22),
-              inset 0 -2px 10px rgba(0,0,0,.2);
+  box-shadow: none;
 }
 .spritebox img{
   width: 140px;
@@ -210,14 +230,13 @@ body{
 .spritebox img.hidden{ opacity:0; }
 
 .infobox{
-  background: rgba(255,255,255,.14);
-  border-radius: 12px;
-  padding: 10px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
   display:flex;
   flex-direction:column;
   gap: 8px;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.16),
-              inset 0 -2px 10px rgba(0,0,0,.18);
+  box-shadow: none;
 }
 
 .kv{ display:grid; gap:4px; }
@@ -230,7 +249,7 @@ body{
 }
 .label{ opacity:.9; font-weight:900; letter-spacing:.10em; }
 .value{
-  font-weight:900; letter-spacing:.10em;
+  font-weight:400; letter-spacing:.10em;
   text-align:right;
   white-space: nowrap;
   overflow: hidden;
@@ -239,23 +258,34 @@ body{
 
 /* ✅ Más alto para que el radar no se “achate” */
 .viewbox{
-  margin-top: 6px;
-  background: rgba(255,255,255,.10);
-  border-radius: 12px;
-  padding: 8px;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.10);
-  height: 146px;          /* ⬅️ antes 122 */
-  display:grid;
-  place-items:stretch;
+  margin-top: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 2px 0;
+  box-shadow: none;
+  min-height: 0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
   position:relative;
+  min-width: 0;
+  width:100%;
 }
 .view{ width:100%; height:100%; }
 
 .view-info{
   display:grid;
-  grid-template-rows: repeat(4, 1fr);
-  gap: 2px;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 6px;
   font-size: 16px;
+  align-content:start;
+}
+.view-title{
+  text-align:center;
+  letter-spacing:.12em;
+  font-size: 14px;
+  opacity:.85;
+  font-weight:900;
 }
 .info-line{
   display:grid;
@@ -274,25 +304,46 @@ body{
   overflow:hidden;
   white-space:nowrap;
   text-overflow:clip;
+  font-weight:400;
 }
 
 /* STATS */
 .view-stats{ display:none; }
 .radar-stage{
   width:100%;
-  height:100%;
   display:grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto auto auto;
   place-items:center;
-  gap: 4px;
+  gap: 6px;
 }
-canvas{ display:block; width:100%; height:100%; }
+canvas{
+  display:block;
+  width:150px;
+  height:150px;
+  max-width:100%;
+  max-height:100%;
+}
 
-.stats-caption{
-  font-size: 13px;
+.stats-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  font-size: 16px;
   opacity: .85;
-  letter-spacing: .10em;
-  text-align:center;
+  letter-spacing: .08em;
+  width:100%;
+}
+.stats-grid > div{
+  display:flex;
+  justify-content:space-between;
+  gap: 8px;
+  font-weight:900;
+}
+.stats-grid span{
+  font-variant-numeric: tabular-nums;
+  text-align:right;
+  min-width: 2ch;
+  font-weight:400;
 }
 
 /* FOOTER fijo + barra al centro */
@@ -639,6 +690,14 @@ canvas{ display:block; width:100%; height:100%; }
   font-size: 16px;
   flex:0 0 auto;
 }
+.page-indicator{
+  text-align:center;
+  font-family: var(--font-screen);
+  font-size: 14px;
+  letter-spacing:.08em;
+  opacity:.85;
+  margin: 2px 4px 6px;
+}
 
 .list{
   list-style:none;
@@ -664,7 +723,13 @@ canvas{ display:block; width:100%; height:100%; }
 .list-item:last-child{ border-bottom:none; }
 .list-item:hover{ background: rgba(31,42,31,.08); }
 .list-item.selected{ background: rgba(31,42,31,.18); }
-.list-item.active .nm::before{ content:"▶ "; font-weight:900; }
+.list-item.active .nm::before{
+  content: "▶ ";
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0.8;
+}
 
 .nm{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .num{
@@ -681,6 +746,7 @@ canvas{ display:block; width:100%; height:100%; }
   .pokedex{ grid-template-columns: 1fr; gap: 16px; }
   .hinge{ display:none; }
   .screen-body{ grid-template-columns: 1fr; }
+  .screen-right{ min-width: 0; }
   .spritebox img{ width: 160px; height:160px; }
   .list{ height: 250px; }
 }

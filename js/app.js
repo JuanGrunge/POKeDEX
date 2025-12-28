@@ -11,12 +11,21 @@ const el = {
 
   genus: $("#pk-genus"),
   habitat: $("#pk-habitat"),
+  color: $("#pk-color"),
+  shape: $("#pk-shape"),
   catchRate: $("#pk-catch"),
   happy: $("#pk-happy"),
 
   viewInfo: $("#view-info"),
   viewStats: $("#view-stats"),
   radar: $("#radar"),
+  statsLegend: $("#stats-legend"),
+  stHp: $("#st-hp"),
+  stAtk: $("#st-atk"),
+  stDef: $("#st-def"),
+  stSpa: $("#st-spa"),
+  stSpd: $("#st-spd"),
+  stSpe: $("#st-spe"),
 
   ledReady: $("#led-ready"),
   ledLoad: $("#led-load"),
@@ -272,6 +281,8 @@ function mapForUI(pokemon, species){
 
   const genusEn = (species.genera || []).find(g => g.language?.name === "en")?.genus || "POKéMON";
   const habitat = species.habitat?.name ? species.habitat.name.toUpperCase() : "--";
+  const color = species.color?.name ? species.color.name.toUpperCase() : "--";
+  const shape = species.shape?.name ? species.shape.name.toUpperCase() : "--";
   const catchRate = (typeof species.capture_rate === "number") ? String(species.capture_rate) : "--";
   const happy = (typeof species.base_happiness === "number") ? String(species.base_happiness) : "--";
 
@@ -284,6 +295,8 @@ function mapForUI(pokemon, species){
     weightKg: (pokemon.weight/10).toFixed(1) + "kg",
     genus: genusEn.toUpperCase().replace(" POKÉMON","").trim() || genusEn.toUpperCase(),
     habitat,
+    color,
+    shape,
     catchRate,
     happy,
     sprite,
@@ -294,6 +307,16 @@ function mapForUI(pokemon, species){
 const TRANSPARENT_1PX =
   "data:image/svg+xml;charset=utf-8," +
   encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>`);
+
+function setStatsLegend(stats){
+  const byKey = new Map(stats.map(s => [s.key, s.value ?? "--"]));
+  if (el.stHp) el.stHp.textContent = String(byKey.get("HP") ?? "--");
+  if (el.stAtk) el.stAtk.textContent = String(byKey.get("ATK") ?? "--");
+  if (el.stDef) el.stDef.textContent = String(byKey.get("DEF") ?? "--");
+  if (el.stSpa) el.stSpa.textContent = String(byKey.get("SPA") ?? "--");
+  if (el.stSpd) el.stSpd.textContent = String(byKey.get("SPD") ?? "--");
+  if (el.stSpe) el.stSpe.textContent = String(byKey.get("SPE") ?? "--");
+}
 
 function renderNotFound(){
   el.id.textContent = "---";
@@ -306,6 +329,8 @@ function renderNotFound(){
 
   el.genus.textContent = "--";
   el.habitat.textContent = "--";
+  el.color.textContent = "--";
+  el.shape.textContent = "--";
   el.catchRate.textContent = "--";
   el.happy.textContent = "--";
 
@@ -316,12 +341,18 @@ function renderNotFound(){
     {key:"HP",value:0},{key:"ATK",value:0},{key:"DEF",value:0},
     {key:"SPA",value:0},{key:"SPD",value:0},{key:"SPE",value:0},
   ]);
+  setStatsLegend([
+    {key:"HP",value:"--"},{key:"ATK",value:"--"},{key:"DEF",value:"--"},
+    {key:"SPA",value:"--"},{key:"SPD",value:"--"},{key:"SPE",value:"--"},
+  ]);
 
   applyMarqueeIfOverflow(el.types);
   applyMarqueeIfOverflow(el.abil);
   applyMarqueeIfOverflow(el.typeValue);
   applyMarqueeIfOverflow(el.genus);
   applyMarqueeIfOverflow(el.habitat);
+  applyMarqueeIfOverflow(el.color);
+  applyMarqueeIfOverflow(el.shape);
 }
 
 function renderViewer(ui){
@@ -335,6 +366,8 @@ function renderViewer(ui){
 
   el.genus.textContent = ui.genus;
   el.habitat.textContent = ui.habitat;
+  el.color.textContent = ui.color;
+  el.shape.textContent = ui.shape;
   el.catchRate.textContent = ui.catchRate;
   el.happy.textContent = ui.happy;
 
@@ -347,11 +380,14 @@ function renderViewer(ui){
   }
 
   drawRadar(ui.stats);
+  setStatsLegend(ui.stats);
 
   applyMarqueeIfOverflow(el.types);
   applyMarqueeIfOverflow(el.abil);
   applyMarqueeIfOverflow(el.genus);
   applyMarqueeIfOverflow(el.habitat);
+  applyMarqueeIfOverflow(el.color);
+  applyMarqueeIfOverflow(el.shape);
 }
 
 function drawRadar(stats){
@@ -402,7 +438,7 @@ function drawRadar(stats){
   }
 
 /* Labels: más discretos y más cerca del polígono (evita tapar stats) */
-ctx.font = "11px VT323, monospace";     // antes 15px
+  ctx.font = "14px VT323, monospace";
 ctx.fillStyle = ink;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";

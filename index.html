@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>POKéDEX v0.7</title>
+  <title>POKéDEX v0.8</title>
   <link rel="icon" href="img/favicon.ico" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -17,7 +17,7 @@
         <header class="topbar">
           <div class="brand">
             <div class="brand-title">POKéDEX</div>
-            <div class="brand-sub mono">v0.7 • monochrome</div>
+            <div class="brand-sub mono">v0.8 • monochrome</div>
           </div>
           <div class="status-lights" aria-label="Indicadores de estado">
             <span class="led" id="led-ready" title="IDLE"></span>
@@ -41,36 +41,43 @@
               </div>
 
               <div class="screen-body">
-                <div class="spritebox">
-                  <img id="pk-sprite" alt="Sprite pixel"
-                    src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" />
-                </div>
-
-                <div class="infobox">
-                  <div class="kv">
-                    <div class="row">
-                      <span class="label">TYPE</span>
-                      <span id="pk-types" class="value">ELECTRIC</span>
-                    </div>
-                    <div class="row">
-                      <span class="label">ABIL</span>
-                      <span id="pk-abil" class="value">STATIC</span>
-                    </div>
-                    <div class="row">
-                      <span class="label">HT</span>
-                      <span id="pk-ht" class="value">0.4m</span>
-                    </div>
-                    <div class="row">
-                      <span class="label">WT</span>
-                      <span id="pk-wt" class="value">6.0kg</span>
-                    </div>
+                <div class="screen-left">
+                  <div class="spritebox">
+                    <img id="pk-sprite" alt="Sprite pixel"
+                      src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" />
                   </div>
 
+                  <div class="infobox">
+                    <div class="kv">
+                      <div class="row">
+                        <span class="label">TYPE</span>
+                        <span id="pk-types" class="value">ELECTRIC</span>
+                      </div>
+                      <div class="row">
+                        <span class="label">ABIL</span>
+                        <span id="pk-abil" class="value">STATIC</span>
+                      </div>
+                      <div class="row">
+                        <span class="label">HT</span>
+                        <span id="pk-ht" class="value">0.4m</span>
+                      </div>
+                      <div class="row">
+                        <span class="label">WT</span>
+                        <span id="pk-wt" class="value">6.0kg</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="screen-right">
                   <div class="viewbox" id="viewbox">
-                    <!-- INFO VIEW (estática) -->
+                    <!-- INFO VIEW (estatica) -->
                     <div class="view view-info" id="view-info">
+                      <div class="view-title mono">INFO</div>
                       <div class="info-line"><span class="tag">GENUS</span> <span id="pk-genus">MOUSE</span></div>
                       <div class="info-line"><span class="tag">HABIT</span> <span id="pk-habitat">FOREST</span></div>
+                      <div class="info-line"><span class="tag">COLOR</span> <span id="pk-color">YELLOW</span></div>
+                      <div class="info-line"><span class="tag">SHAPE</span> <span id="pk-shape">QUADRUPED</span></div>
                       <div class="info-line"><span class="tag">CATCH</span> <span id="pk-catch">190</span></div>
                       <div class="info-line"><span class="tag">HAPPY</span> <span id="pk-happy">70</span></div>
                     </div>
@@ -78,7 +85,16 @@
                     <!-- STATS VIEW -->
                     <div class="view view-stats" id="view-stats" aria-hidden="true">
                       <div class="radar-stage">
-                        <canvas id="radar" width="220" height="220"></canvas>
+                        <div class="view-title mono">STATS</div>
+                        <canvas id="radar" width="150" height="150"></canvas>
+                        <div class="stats-grid mono" id="stats-legend">
+                          <div>HP <span id="st-hp">--</span></div>
+                          <div>ATK <span id="st-atk">--</span></div>
+                          <div>DEF <span id="st-def">--</span></div>
+                          <div>SPA <span id="st-spa">--</span></div>
+                          <div>SPD <span id="st-spd">--</span></div>
+                          <div>SPE <span id="st-spe">--</span></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -180,7 +196,7 @@
       <div class="right">
         <header class="right-top">
           <div class="panel-title">DEX BROWSER</div>
-          <div class="panel-sub mono">GEN 1 | DEX 001–151</div>
+          <div class="panel-sub mono">GEN 1 • DEX 001–151</div>
         </header>
 
         <div class="bezel browser-bezel">
@@ -203,12 +219,12 @@
                   <div class="type-value" id="type-value">ALL</div>
                   <button class="arrow" id="type-next" type="button" aria-label="Siguiente tipo">►</button>
                 </div>
-
-                <div class="mini-lcd mono" id="mini-screen">PAGE 01/01</div>
               </div>
 
-              <ul class="list" id="pk-list" aria-label="Lista de Pokémon"></ul>
+              
 
+              <ul class="list" id="pk-list" aria-label="Lista de Pokémon"></ul>
+              <div class="page-indicator mono" id="mini-screen">PAGE 01/01</div>
               <div class="browser-footer mono">
                 ↑↓ move • ←→ page • SELECT confirm • ENTER search
               </div>
@@ -224,3 +240,4 @@
 </body>
 
 </html>
+
