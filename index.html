@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>POKéDEX v0.8</title>
+  <title>POKéDEX v0.9</title>
   <link rel="icon" href="img/favicon.ico" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -17,7 +17,7 @@
         <header class="topbar">
           <div class="brand">
             <div class="brand-title">POKéDEX</div>
-            <div class="brand-sub mono">v0.8 • monochrome</div>
+            <div class="brand-sub mono">v0.9 • monochrome</div>
           </div>
           <div class="status-lights" aria-label="Indicadores de estado">
             <span class="led" id="led-ready" title="IDLE"></span>
@@ -80,6 +80,14 @@
                       <div class="info-line"><span class="tag">SHAPE</span> <span id="pk-shape">QUADRUPED</span></div>
                       <div class="info-line"><span class="tag">CATCH</span> <span id="pk-catch">190</span></div>
                       <div class="info-line"><span class="tag">HAPPY</span> <span id="pk-happy">70</span></div>
+                      <div class="info-desc" id="pk-desc">
+                        <div class="desc-inner" id="pk-desc-inner">---</div>
+                      </div>
+                      <div class="info-lang mono" id="pk-lang">
+                        LANG:
+                        <span class="lang-option selected" data-lang="en">ENG</span>
+                        <span class="lang-option" data-lang="es">ESP</span>
+                      </div>
                     </div>
 
                     <!-- STATS VIEW -->

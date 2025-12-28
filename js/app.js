@@ -15,6 +15,9 @@ const el = {
   shape: $("#pk-shape"),
   catchRate: $("#pk-catch"),
   happy: $("#pk-happy"),
+  desc: $("#pk-desc"),
+  descInner: $("#pk-desc-inner"),
+  lang: $("#pk-lang"),
 
   viewInfo: $("#view-info"),
   viewStats: $("#view-stats"),
@@ -73,6 +76,49 @@ function applyMarqueeIfOverflow(node){
       node.innerHTML = `<span class="marquee-inner">${txt}   •   ${txt}</span>`;
     }
   });
+}
+
+let flavorState = { en: "--", es: "" };
+let currentLang = "en";
+
+function normalizeFlavor(text){
+  if (!text) return "--";
+  return text.replace(/[\f\n\r]+/g, " ").replace(/\s{2,}/g, " ").trim().toUpperCase();
+}
+
+function applyVerticalMarqueeIfOverflow(container, inner){
+  if (!container || !inner) return;
+  container.classList.remove("vmarquee");
+  container.style.removeProperty("--marquee-distance");
+  requestAnimationFrame(() => {
+    const overflow = inner.scrollHeight - container.clientHeight;
+    if (overflow > 2){
+      container.style.setProperty("--marquee-distance", `${overflow}px`);
+      container.classList.add("vmarquee");
+    }
+  });
+}
+
+function setLang(lang){
+  if (lang === "es" && !flavorState.es) lang = "en";
+  currentLang = lang;
+  const text = (lang === "es" ? flavorState.es : flavorState.en) || "--";
+  if (el.descInner) el.descInner.textContent = text;
+  if (el.lang){
+    const opts = el.lang.querySelectorAll(".lang-option");
+    opts.forEach((opt) => {
+      opt.classList.toggle("selected", opt.dataset.lang === currentLang);
+    });
+  }
+  applyVerticalMarqueeIfOverflow(el.desc, el.descInner);
+}
+
+function setFlavorData(enText, esText){
+  flavorState = {
+    en: normalizeFlavor(enText),
+    es: normalizeFlavor(esText || "")
+  };
+  setLang(currentLang);
 }
 
 // ---------- AUDIO (synth 8/16-bit) ----------
@@ -283,6 +329,8 @@ function mapForUI(pokemon, species){
   const habitat = species.habitat?.name ? species.habitat.name.toUpperCase() : "--";
   const color = species.color?.name ? species.color.name.toUpperCase() : "--";
   const shape = species.shape?.name ? species.shape.name.toUpperCase() : "--";
+  const flavorEn = (species.flavor_text_entries || []).find(f => f.language?.name === "en")?.flavor_text || "--";
+  const flavorEs = (species.flavor_text_entries || []).find(f => f.language?.name === "es")?.flavor_text || "";
   const catchRate = (typeof species.capture_rate === "number") ? String(species.capture_rate) : "--";
   const happy = (typeof species.base_happiness === "number") ? String(species.base_happiness) : "--";
 
@@ -297,6 +345,8 @@ function mapForUI(pokemon, species){
     habitat,
     color,
     shape,
+    flavorEn,
+    flavorEs,
     catchRate,
     happy,
     sprite,
@@ -307,6 +357,21 @@ function mapForUI(pokemon, species){
 const TRANSPARENT_1PX =
   "data:image/svg+xml;charset=utf-8," +
   encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>`);
+
+const NOT_FOUND_SPRITE_URL = "https://pokeapi.co/api/v2/pokemon/dugtrio";
+let notFoundSprite = null;
+let notFoundPromise = null;
+
+async function getNotFoundSprite(){
+  if (notFoundSprite) return notFoundSprite;
+  if (!notFoundPromise){
+    notFoundPromise = fetchJSON(NOT_FOUND_SPRITE_URL)
+      .then(data => data?.sprites?.front_default || null)
+      .catch(() => null);
+  }
+  notFoundSprite = await notFoundPromise;
+  return notFoundSprite;
+}
 
 function setStatsLegend(stats){
   const byKey = new Map(stats.map(s => [s.key, s.value ?? "--"]));
@@ -333,9 +398,14 @@ function renderNotFound(){
   el.shape.textContent = "--";
   el.catchRate.textContent = "--";
   el.happy.textContent = "--";
+  setFlavorData("--", "");
 
   el.sprite.src = TRANSPARENT_1PX;
-  el.sprite.classList.add("hidden");
+  el.sprite.classList.remove("hidden");
+  el.sprite.classList.add("not-found");
+  getNotFoundSprite().then((src) => {
+    if (src) el.sprite.src = src;
+  });
 
   drawRadar([
     {key:"HP",value:0},{key:"ATK",value:0},{key:"DEF",value:0},
@@ -370,7 +440,9 @@ function renderViewer(ui){
   el.shape.textContent = ui.shape;
   el.catchRate.textContent = ui.catchRate;
   el.happy.textContent = ui.happy;
+  setFlavorData(ui.flavorEn, ui.flavorEs);
 
+  el.sprite.classList.remove("not-found");
   if (ui.sprite){
     el.sprite.src = ui.sprite;
     el.sprite.classList.remove("hidden");
@@ -724,6 +796,16 @@ el.dDown.addEventListener("click", () => moveSelection(+1));
 el.dLeft.addEventListener("click", () => changePage(-1));
 el.dRight.addEventListener("click", () => changePage(+1));
 
+if (el.lang){
+  el.lang.addEventListener("click", (e) => {
+    const opt = e.target.closest(".lang-option");
+    if (opt?.dataset?.lang){
+      setLang(opt.dataset.lang);
+      SFX.move();
+    }
+  });
+}
+
 window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowUp") moveSelection(-1);
   else if (e.key === "ArrowDown") moveSelection(+1);
@@ -742,6 +824,7 @@ window.addEventListener("resize", () => {
   applyMarqueeIfOverflow(el.abil);
   applyMarqueeIfOverflow(el.genus);
   applyMarqueeIfOverflow(el.habitat);
+  applyVerticalMarqueeIfOverflow(el.desc, el.descInner);
 });
 
 // ---------- INIT ----------

@@ -131,6 +131,7 @@ body{
               inset 0 0 22px rgba(0,0,0,.25);
   overflow:hidden;
   font-family: var(--font-screen);
+  isolation:isolate;
 }
 
 /* un pelín más alto para que STATS respire */
@@ -148,6 +149,7 @@ body{
   pointer-events:none;
   mix-blend-mode:multiply;
   opacity:.55;
+  z-index:2;
 }
 
 .screen-grid{
@@ -156,7 +158,7 @@ body{
   grid-template-rows: auto 1fr auto;
   gap: 10px;
   position:relative;
-  z-index:1;
+  z-index:0;
   min-width:0;
 }
 
@@ -191,6 +193,7 @@ body{
   gap: 12px;
   align-items:stretch;
   min-width:0;
+  padding-bottom: 8px;
 }
 .screen-left{
   display:grid;
@@ -226,6 +229,9 @@ body{
   height: 140px;
   image-rendering: pixelated;
   filter: saturate(0.2) contrast(1.25);
+}
+.spritebox img.not-found{
+  filter: brightness(0) contrast(1);
 }
 .spritebox img.hidden{ opacity:0; }
 
@@ -275,7 +281,7 @@ body{
 
 .view-info{
   display:grid;
-  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-rows: auto;
   gap: 6px;
   font-size: 16px;
   align-content:start;
@@ -305,6 +311,44 @@ body{
   white-space:nowrap;
   text-overflow:clip;
   font-weight:400;
+}
+.info-desc{
+  margin-top: 4px;
+  line-height: 1.2;
+  height: 3.6em;
+  overflow:hidden;
+  position:relative;
+}
+.desc-inner{
+  display:block;
+}
+.info-desc:not(.vmarquee) .desc-inner{
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient: vertical;
+  overflow:hidden;
+}
+.info-desc.vmarquee .desc-inner{
+  animation: vmarquee 12s linear infinite;
+}
+@keyframes vmarquee{
+  0%{ transform: translateY(0); }
+  15%{ transform: translateY(0); }
+  55%{ transform: translateY(calc(-1 * var(--marquee-distance, 0px))); }
+  70%{ transform: translateY(calc(-1 * var(--marquee-distance, 0px))); }
+  100%{ transform: translateY(0); }
+}
+.info-lang{
+  margin-top: 2px;
+  letter-spacing:.10em;
+  opacity:.85;
+}
+.lang-option{
+  margin-left: 6px;
+  cursor:pointer;
+}
+.lang-option.selected{
+  font-weight:900;
 }
 
 /* STATS */
@@ -588,7 +632,7 @@ canvas{
   display: inline-block;
   white-space: nowrap;
   padding-left: 10px;
-  animation: marquee 3.6s linear infinite;
+  animation: marquee 7.2s linear infinite;
 }
 @keyframes marquee{
   0%   { transform: translateX(0); }
