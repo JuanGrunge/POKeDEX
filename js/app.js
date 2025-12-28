@@ -796,6 +796,30 @@ el.dDown.addEventListener("click", () => moveSelection(+1));
 el.dLeft.addEventListener("click", () => changePage(-1));
 el.dRight.addEventListener("click", () => changePage(+1));
 
+function bindTap(elBtn, fn){
+  if (!elBtn) return;
+  const isCoarse = window.matchMedia?.("(pointer: coarse)")?.matches;
+  if (!isCoarse) return;
+  elBtn.addEventListener("click", (e) => {
+    if (elBtn.dataset.tapHandled === "1") {
+      e.preventDefault();
+      e.stopPropagation();
+      elBtn.dataset.tapHandled = "";
+    }
+  }, true);
+  elBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    elBtn.dataset.tapHandled = "1";
+    fn();
+  }, {passive:false});
+}
+
+// refuerza taps móviles sin romper desktop
+bindTap(el.dLeft,  () => changePage(-1));
+bindTap(el.dRight, () => changePage(+1));
+bindTap(el.dUp,    () => moveSelection(-1));
+bindTap(el.dDown,  () => moveSelection(+1));
+
 if (el.lang){
   el.lang.addEventListener("click", (e) => {
     const opt = e.target.closest(".lang-option");
