@@ -1,4 +1,4 @@
-# PokeDEX v0.6
+# PokeDEX v1.0
 
 Proyecto web estatico tipo Pokedex con interfaz retro y busqueda de Pokemon usando PokeAPI.
 
